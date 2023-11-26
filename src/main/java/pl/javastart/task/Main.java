@@ -12,7 +12,7 @@ public class Main {
             Pattern.compile("(\\d{4})-(0[1-9]|1[0-2])-(\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})"),
             Pattern.compile("(\\d{2}).(0[1-9]|1[0-2]).(\\d{4}) (\\d{2}):(\\d{2}):(\\d{2})"),
             Pattern.compile("(\\d{4})-(0[1-9]|1[0-2])-(\\d{2}$)"),
-            Pattern.compile("([t]([-|+][1-9]{1,2}[y|M|d|h|m|s]){1,6})")
+            Pattern.compile("([t]([-|+][1-9]{1,2}[y|M|d|h|m|s]){0,6})")
     };
 
     public static void main(String[] args) {
@@ -52,43 +52,50 @@ public class Main {
         List<String> convertedDataList = new LinkedList<>(Arrays.asList(convertedData));
         convertedDataList.remove(0);
         LocalDateTime lt = LocalDateTime.now();
-        for (int i = 0; i < convertedDataList.size(); i++) {
-            List<String> singlePlusMinusAction;
-            singlePlusMinusAction = Collections.singletonList(convertedDataList.get(i));
 
+        for (String s : convertedDataList) {
+            List<Character> singlePlusMinusAction = new ArrayList<>(s.chars().mapToObj(c -> (char) c).toList());
+            String operator = String.valueOf(singlePlusMinusAction.get(0));
+            String symbolOfTime = String.valueOf(singlePlusMinusAction.get(singlePlusMinusAction.size() - 1));
+            singlePlusMinusAction.remove(0);
+            singlePlusMinusAction.remove(singlePlusMinusAction.size() - 1);
 
-            if (Objects.equals(singlePlusMinusAction.get(0), "+")) {
-                switch (singlePlusMinusAction.get(2)) {
-                    case "y" -> lt = lt.plusYears(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "M" -> lt = lt.plusMonths(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "d" -> lt = lt.plusDays(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "h" -> lt = lt.plusHours(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "m" -> lt = lt.plusMinutes(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "s" -> lt = lt.plusSeconds(Long.parseLong(singlePlusMinusAction.get(1)));
-                    default -> System.out.println("Nieznana jednostka");
+            StringBuilder valueToChange = new StringBuilder();
+            for (Character item : singlePlusMinusAction) {
+                valueToChange.append(item);
+            }
+
+            if (Objects.equals(operator, "+")) {
+                switch (symbolOfTime) {
+                    case "y" -> lt = lt.plusYears(Long.parseLong(String.valueOf(valueToChange)));
+                    case "M" -> lt = lt.plusMonths(Long.parseLong(String.valueOf(valueToChange)));
+                    case "d" -> lt = lt.plusDays(Long.parseLong(String.valueOf(valueToChange)));
+                    case "h" -> lt = lt.plusHours(Long.parseLong(String.valueOf(valueToChange)));
+                    case "m" -> lt = lt.plusMinutes(Long.parseLong(String.valueOf(valueToChange)));
+                    case "s" -> lt = lt.plusSeconds(Long.parseLong(String.valueOf(valueToChange)));
+                    default -> System.out.println("Nieznana jednostka: " + symbolOfTime);
                 }
             } else {
-                switch (singlePlusMinusAction.get(2)) {
-                    case "y" -> lt = lt.minusYears(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "M" -> lt = lt.minusMonths(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "d" -> lt = lt.minusDays(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "h" -> lt = lt.minusHours(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "m" -> lt = lt.minusMinutes(Long.parseLong(singlePlusMinusAction.get(1)));
-                    case "s" -> lt = lt.minusSeconds(Long.parseLong(singlePlusMinusAction.get(1)));
-                    default -> System.out.println("Nieznana jednostka");
+                switch (symbolOfTime) {
+                    case "y" -> lt = lt.minusYears(Long.parseLong(String.valueOf(valueToChange)));
+                    case "M" -> lt = lt.minusMonths(Long.parseLong(String.valueOf(valueToChange)));
+                    case "d" -> lt = lt.minusDays(Long.parseLong(String.valueOf(valueToChange)));
+                    case "h" -> lt = lt.minusHours(Long.parseLong(String.valueOf(valueToChange)));
+                    case "m" -> lt = lt.minusMinutes(Long.parseLong(String.valueOf(valueToChange)));
+                    case "s" -> lt = lt.minusSeconds(Long.parseLong(String.valueOf(valueToChange)));
+                    default -> System.out.println("Nieznana jednostka: " + symbolOfTime);
                 }
-                System.out.println("tutaj");
-                System.out.println(singlePlusMinusAction.get(0));
             }
         }
-        return String.valueOf(lt);
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return lt.format(format);
     }
 
     public void datetimeCalculations(String dateFromUserAfterReformat) {
-        String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
         // parsed String to dateTime
-        LocalDateTime localDateTime = LocalDateTime.parse(dateFromUserAfterReformat, DateTimeFormatter.ofPattern(dateFormat));
+        LocalDateTime localDateTime = LocalDateTime.parse(dateFromUserAfterReformat, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         // local date time at your system's default time zone
         ZonedDateTime systemZoneDateTime = localDateTime.atZone(ZoneId.systemDefault());
